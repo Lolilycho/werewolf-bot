@@ -121,3 +121,19 @@ if (i.customId === "end_game") {
   await i.channel.send("===試合結果===");
   await i.channel.send("```" + log + "```");
 }
+
+if (msg.content === "!start") {
+
+  game.players = [];
+  game.alive = [];
+  game.roles = {};
+  game.votes = [];
+  game.voteCount = {};
+  game.logs = [];   // ← ★重要
+  game.day = 1;
+
+  return msg.channel.send({
+    content: "GM操作",
+    components: [gmButtons()]
+  });
+}
