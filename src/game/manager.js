@@ -87,6 +87,18 @@ export async function onInteraction(i) {
     const value = i.values[0];
 
     if (i.customId === "vote") {
+      if (game.spectators.includes(i.user.username)) {
+      return i.reply({
+        content: "観戦者は投票できません",
+        ephemeral: true
+      });
+    }
+  if (!addVote(i.user.username, value)) {
+    return i.reply({ content: "自投票禁止", ephemeral: true });
+  }
+
+  ...
+}
 
       if (!addVote(i.user.username, value)) {
         return i.reply({ content: "自投票禁止", ephemeral: true });
@@ -154,4 +166,19 @@ if (i.isButton()) {
     }
     return i.editReply("観戦者として参加しました");
   }
+}
+if (i.isButton()) {
+
+  await i.deferReply({ ephemeral: true });
+
+  const name = i.user.username;
+
+  // --- 参加処理ここ ---
+
+  // 👇 一番最後にこれ追加
+  await i.followUp(
+`GM: ${game.gm || "なし"}
+プレイヤー: ${game.players.join(", ") || "なし"}
+観戦者: ${game.spectators.join(", ") || "なし"}`
+  );
 }
