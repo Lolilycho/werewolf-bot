@@ -20,11 +20,35 @@ export async function createGameChannels(guild, game) {
     parent: category.id
   });
 
-  // 👇 観戦者チャット
-  const spectator = await guild.channels.create({
-    name: "観戦者",
-    parent: category.id
-  });
+const spectator = await guild.channels.create({
+  name: "観戦者",
+  parent: category.id,
+  permissionOverwrites: [
+    // 全体は見れない
+    {
+      id: guild.id,
+      deny: ["ViewChannel"]
+    },
+
+    // GMは見れる
+    {
+      id: game.gmId,
+      allow: ["ViewChannel"]
+    },
+
+    // 観戦者だけ見れる
+    ...game.spectators.map(name => {
+      const member = guild.members.cache.find(m => m.user.username === name);
+
+      if (!member) return null;
+
+      return {
+        id: member.id,
+        allow: ["ViewChannel"]
+      };
+    }).filter(Boolean)
+  ]
+});
 
   // 個人チャンネル
   const personalChannels = {};
