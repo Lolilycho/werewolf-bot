@@ -39,6 +39,17 @@ export async function onInteraction(i) {
 
     await i.deferReply();
 
+    if (i.customId === "create_game") {
+
+      await i.deferReply();
+
+      const channels = await createGameChannels(i.guild, game);
+
+      game.channels = channels;
+
+      await i.editReply("チャンネルを作成しました");
+    }
+
     if (i.customId === "start_day") {
 
       resetVotes();
