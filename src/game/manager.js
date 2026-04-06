@@ -146,7 +146,8 @@ if (i.isButton()) {
 
   // GM
   if (i.customId === "join_gm") {
-    game.gm = name;
+    game.gmId = i.user.id;
+    game.gm = i.user.username; // 表示用（あってもOK）
     return i.editReply("GMとして登録しました");
   }
 
