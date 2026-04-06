@@ -1,17 +1,11 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from "discord.js";
-import { game } from "../game/state.js";
 
-export function voteSelect() {
-
-  const options = game.alive.map(p => ({
-    label: p,
-    value: p
-  }));
+export function createSelect(id, list, placeholder="選択") {
 
   const select = new StringSelectMenuBuilder()
-    .setCustomId("vote")
-    .setPlaceholder("投票先を選択")
-    .addOptions(options);
+    .setCustomId(id)
+    .setPlaceholder(placeholder)
+    .addOptions(list.map(v => ({ label: v, value: v })));
 
   return new ActionRowBuilder().addComponents(select);
 }
