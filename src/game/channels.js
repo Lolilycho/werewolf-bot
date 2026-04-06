@@ -1,13 +1,8 @@
-export async function createGameChannels(guild, players) {
+export async function createGameChannels(guild) {
 
   const category = await guild.channels.create({
     name: "人狼",
     type: 4
-  });
-
-  const rule = await guild.channels.create({
-    name: "rule",
-    parent: category.id
   });
 
   const vote = await guild.channels.create({
@@ -20,16 +15,5 @@ export async function createGameChannels(guild, players) {
     parent: category.id
   });
 
-  for (const p of players) {
-    await guild.channels.create({
-      name: `個人-${p.name}`,
-      parent: category.id,
-      permissionOverwrites: [
-        { id: guild.id, deny: ["ViewChannel"] },
-        { id: p.id, allow: ["ViewChannel"] }
-      ]
-    });
-  }
-
-  return { category, rule, vote, gm };
+  return { category, vote, gm };
 }
