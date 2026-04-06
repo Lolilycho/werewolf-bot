@@ -1,4 +1,4 @@
-export async function createGameChannels(guild, players) {
+export async function createGameChannels(guild, game) {
 
   const category = await guild.channels.create({
     name: "人狼",
@@ -20,10 +20,16 @@ export async function createGameChannels(guild, players) {
     parent: category.id
   });
 
+  // 👇 観戦者チャット
+  const spectator = await guild.channels.create({
+    name: "観戦者",
+    parent: category.id
+  });
+
   // 個人チャンネル
   const personalChannels = {};
 
-  for (const p of players) {
+  for (const p of game.players) {
 
     const member = guild.members.cache.find(m => m.user.username === p);
     if (!member) continue;
@@ -51,6 +57,7 @@ export async function createGameChannels(guild, players) {
     rule,
     vote,
     gm,
+    spectator, // ← 追加
     personalChannels
   };
 }
