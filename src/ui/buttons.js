@@ -28,3 +28,22 @@ export function gmButtons() {
       .setStyle(ButtonStyle.Danger)
   );
 }
+
+export function joinButtons() {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId("join_gm")
+      .setLabel("GM参加")
+      .setStyle(ButtonStyle.Danger),
+
+    new ButtonBuilder()
+      .setCustomId("join_player")
+      .setLabel("プレイヤー参加")
+      .setStyle(ButtonStyle.Primary),
+
+    new ButtonBuilder()
+      .setCustomId("join_spectator")
+      .setLabel("観戦者参加")
+      .setStyle(ButtonStyle.Secondary)
+  );
+}
