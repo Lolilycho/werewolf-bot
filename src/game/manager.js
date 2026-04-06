@@ -37,20 +37,29 @@ export async function onInteraction(i) {
 
   if (i.isButton()) {
 
-    if (i.customId === "start_day") {
-      resetVotes();
+  if (i.customId === "start_day") {
 
-      return i.channel.send({
-        content: `${game.day}日目 投票開始`,
-        components: [createSelect("vote", game.alive)]
-      });
-    }
+    await i.deferReply();
 
-    if (i.customId === "start_night") {
-      initNight();
-      await i.channel.send("霊媒結果：なし（簡易）");
-      return i.reply("夜開始");
-    }
+    resetVotes();
+
+    await i.editReply({
+      content: `${game.day}日目 投票開始`,
+      components: [createSelect("vote", game.alive)]
+    });
+  }
+
+  if (i.customId === "start_day") {
+
+    await i.deferReply();
+
+    resetVotes();
+
+    await i.editReply({
+      content: `${game.day}日目 投票開始`,
+      components: [createSelect("vote", game.alive)]
+    });
+  }
 
     if (i.customId === "end_night") {
 
@@ -66,16 +75,13 @@ export async function onInteraction(i) {
       }
     }
 
-    if (i.customId === "end_game") {
+  if (i.customId === "start_night") {
 
-      const win = checkWin();
-      await i.channel.send(`🏆 ${win}`);
+    await i.deferReply();
 
-      const log = formatLog();
+    initNight();
 
-      await i.channel.send("===試合ログ===");
-      await i.channel.send("```" + log + "```");
-    }
+    await i.editReply("夜開始");
   }
 
   if (i.isStringSelectMenu()) {
