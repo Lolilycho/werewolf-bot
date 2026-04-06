@@ -6,6 +6,7 @@ import { checkRunoff } from "./runoff.js";
 import { initNight, setWolf, setGuard, setDivine, resolveNight } from "./night.js";
 import { addLog, formatLog } from "../utils/log.js";
 import { checkWin } from "./result.js";
+import { createGameChannels } from "./channels.js";
 
 export async function onMessage(msg) {
   if (msg.author.bot) return;
@@ -123,4 +124,21 @@ export async function onInteraction(i) {
       return i.reply(`${value} を襲撃`);
     }
   }
+}
+
+if (msg.content === "!start") {
+
+  game.players = [];
+  game.alive = [];
+  game.roles = {};
+  game.logs = [];
+
+  const channels = await createGameChannels(msg.guild, []);
+
+  game.channels = channels;
+
+  return msg.channel.send({
+    content: "GM操作",
+    components: [gmButtons()]
+  });
 }
