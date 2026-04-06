@@ -1,11 +1,16 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from "discord.js";
 
-export function createSelect(id, list, placeholder="選択") {
+export function createSelect(id, options) {
 
-  const select = new StringSelectMenuBuilder()
-    .setCustomId(id)
-    .setPlaceholder(placeholder)
-    .addOptions(list.map(v => ({ label: v, value: v })));
-
-  return new ActionRowBuilder().addComponents(select);
+  return new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(id)
+      .setPlaceholder("選択してください")
+      .addOptions(
+        options.map(o => ({
+          label: o,
+          value: o
+        }))
+      )
+  );
 }
