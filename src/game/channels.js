@@ -1,16 +1,35 @@
-import { ChannelType } from "discord.js";
+export async function createGameChannels(guild, players) {
 
-export async function createChannels(guild) {
-  const cat = await guild.channels.create({
+  const category = await guild.channels.create({
     name: "人狼",
-    type: ChannelType.GuildCategory
+    type: 4
+  });
+
+  const rule = await guild.channels.create({
+    name: "rule",
+    parent: category.id
   });
 
   const vote = await guild.channels.create({
     name: "投票",
-    type: ChannelType.GuildText,
-    parent: cat.id
+    parent: category.id
   });
 
-  return { cat, vote };
+  const gm = await guild.channels.create({
+    name: "gm",
+    parent: category.id
+  });
+
+  for (const p of players) {
+    await guild.channels.create({
+      name: `個人-${p.name}`,
+      parent: category.id,
+      permissionOverwrites: [
+        { id: guild.id, deny: ["ViewChannel"] },
+        { id: p.id, allow: ["ViewChannel"] }
+      ]
+    });
+  }
+
+  return { category, rule, vote, gm };
 }
