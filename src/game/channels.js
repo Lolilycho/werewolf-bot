@@ -81,7 +81,41 @@ const spectator = await guild.channels.create({
     rule,
     vote,
     gm,
-    spectator, // ← 追加
+    spectator,
+    wolfVoice, // ← 追加
     personalChannels
   };
 }
+
+const wolfVoice = await guild.channels.create({
+  name: "人狼ボイス",
+  type: 2, // ← ボイスチャンネル
+  parent: category.id,
+  permissionOverwrites: [
+    // 全体禁止
+    {
+      id: guild.id,
+      deny: ["ViewChannel", "Connect"]
+    },
+
+    // GMはOK
+    {
+      id: game.gmId,
+      allow: ["ViewChannel", "Connect"]
+    },
+
+    // 人狼だけOK
+    ...Object.entries(game.roles)
+      .filter(([_, role]) => role === "人狼")
+      .map(([name]) => {
+        const member = guild.members.cache.find(m => m.user.username === name);
+
+        if (!member) return null;
+
+        return {
+          id: member.id,
+          allow: ["ViewChannel", "Connect"]
+        };
+      }).filter(Boolean)
+  ]
+});
