@@ -4,6 +4,7 @@ export const game = {
   roles: {},
   votes: [],
   voteCount: {},
-  phase: "idle",
+  nightActions: {},
+  logs: [],   // ← ★これ追加
   day: 1
 };
