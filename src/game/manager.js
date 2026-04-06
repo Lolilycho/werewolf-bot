@@ -1,54 +1,49 @@
-import { GameState } from "./GameState.js";
-import { assignRoles } from "./roles.js";
+import { ActionRowBuilder, StringSelectMenuBuilder } from "discord.js";
 import { gmButtons } from "../ui/buttons.js";
-import { voteSelect } from "./voteUI.js";
 import { addVote } from "./vote.js";
-import { sendLog } from "./end.js";
-
-const game = new GameState();
 
 export async function handleMessage(msg) {
+  if (msg.author.bot) return;
 
   if (msg.content === "!start") {
-    return msg.channel.send({ content: "GM操作", components: [gmButtons()] });
-  }
-
-  if (msg.content === "!join") {
-    game.players.push({ id: msg.author.id, name: msg.author.username });
-    return msg.reply("参加");
+    return msg.channel.send({
+      content: "GM操作",
+      components: [gmButtons()]
+    });
   }
 }
 
 export async function handleInteraction(i) {
-
   if (i.isButton()) {
 
-    if (i.customId === "assign") {
-      assignRoles(game);
-      return i.reply("配布完了");
-    }
-
     if (i.customId === "day") {
-      return i.channel.send({ content: "投票", components: [voteSelect(game)] });
-    }
+      const select = new StringSelectMenuBuilder()
+        .setCustomId("vote")
+        .setPlaceholder("投票先を選択")
+        .addOptions([
+          { label: "A", value: "A" },
+          { label: "B", value: "B" }
+        ]);
 
-    if (i.customId === "night") {
-      game.nights.push({ dead: [] });
-      return i.reply("夜開始");
-    }
+      const row = new ActionRowBuilder().addComponents(select);
 
-    if (i.customId === "end") {
-      return sendLog(i.channel, game);
+      return i.channel.send({
+        content: "投票してください",
+        components: [row]
+      });
     }
   }
 
   if (i.isStringSelectMenu()) {
 
     if (i.customId === "vote") {
-      const target = i.values[0];
-      addVote(game, i.user.username, target);
+      addVote(i.user.username, i.values[0]);
 
-      const msg = await i.reply({ content: "投票完了", fetchReply: true });
+      const msg = await i.reply({
+        content: "投票完了",
+        fetchReply: true
+      });
+
       setTimeout(() => msg.delete(), 5000);
     }
   }
