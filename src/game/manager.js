@@ -12,13 +12,15 @@ export async function onMessage(msg) {
   if (msg.author.bot) return;
 
   if (msg.content === "!start") {
+
     game.players = [];
     game.alive = [];
     game.roles = {};
-    game.votes = [];
-    game.voteCount = {};
     game.logs = [];
     game.day = 1;
+
+    const channels = await createGameChannels(msg.guild, game.players);
+    game.channels = channels;
 
     return msg.channel.send({
       content: "GM操作",
