@@ -1,7 +1,7 @@
 export const game = {
   gm: null,
   players: [],
-  infected: [],
+  spectators: [],
   alive: [],
   roles: {},
   votes: [],
