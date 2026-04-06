@@ -106,3 +106,18 @@ export async function onInteraction(i) {
     }
   }
 }
+
+import { checkWin } from "./result.js";
+import { formatLog } from "../utils/log.js";
+
+if (i.customId === "end_game") {
+
+  const win = checkWin();
+
+  await i.reply(`勝敗が決まりました：${win}`);
+
+  const log = formatLog();
+
+  await i.channel.send("===試合結果===");
+  await i.channel.send("```" + log + "```");
+}
