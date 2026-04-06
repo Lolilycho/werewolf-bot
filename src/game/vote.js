@@ -1,3 +1,6 @@
-export function addVote(game, voter, target) {
-  game.votes.push({ day: game.day, voter, target });
+const votes = [];
+
+export function addVote(user, target) {
+  votes.push({ user, target });
+  console.log(votes);
 }
