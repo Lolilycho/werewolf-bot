@@ -16,19 +16,10 @@ export async function onMessage(msg) {
     game.players = [];
     game.alive = [];
     game.roles = {};
-    game.votes = [];
-    game.voteCount = {};
     game.logs = [];
     game.day = 1;
 
-    // チャンネル生成
-    const channels = await createGameChannels(msg.guild);
-    game.channels = channels;
-
-    return msg.channel.send({
-      content: "GM操作",
-      components: [gmButtons()]
-    });
+    return msg.channel.send("参加者を募集します（!join）");
   }
 
   if (msg.content === "!join") {
