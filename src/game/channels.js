@@ -1,33 +1,56 @@
-export async function createGameChannels(guild) {
+export async function createGameChannels(guild, players) {
 
-  // カテゴリ作成
   const category = await guild.channels.create({
     name: "人狼",
     type: 4
   });
 
-  // ルール
   const rule = await guild.channels.create({
     name: "rule",
     parent: category.id
   });
 
-  // 投票
   const vote = await guild.channels.create({
     name: "投票",
     parent: category.id
   });
 
-  // GM
   const gm = await guild.channels.create({
     name: "gm",
     parent: category.id
   });
 
+  // 個人チャンネル
+  const personalChannels = {};
+
+  for (const p of players) {
+
+    const member = guild.members.cache.find(m => m.user.username === p);
+    if (!member) continue;
+
+    const ch = await guild.channels.create({
+      name: `個人-${p}`,
+      parent: category.id,
+      permissionOverwrites: [
+        {
+          id: guild.id,
+          deny: ["ViewChannel"]
+        },
+        {
+          id: member.id,
+          allow: ["ViewChannel"]
+        }
+      ]
+    });
+
+    personalChannels[p] = ch;
+  }
+
   return {
     category,
     rule,
     vote,
-    gm
+    gm,
+    personalChannels
   };
 }
