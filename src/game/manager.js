@@ -11,16 +11,20 @@ import { createGameChannels } from "./channels.js";
 export async function onMessage(msg) {
   if (msg.author.bot) return;
 
-  if (msg.content === "!start") {
+import { joinButtons } from "../ui/buttons.js";
 
-    game.players = [];
-    game.alive = [];
-    game.roles = {};
-    game.logs = [];
-    game.day = 1;
+if (msg.content === "!start") {
 
-    return msg.channel.send("参加者を募集します（!join）");
-  }
+  game.gm = null;
+  game.players = [];
+  game.infected = [];
+  game.alive = [];
+
+  return msg.channel.send({
+    content: "参加してください",
+    components: [joinButtons()]
+  });
+}
 
   if (msg.content === "!join") {
     game.players.push(msg.author.username);
@@ -120,5 +124,34 @@ export async function onInteraction(i) {
       setWolf(value);
       return i.reply(`${value} を襲撃`);
     }
+  }
+}
+if (i.isButton()) {
+
+  await i.deferReply({ ephemeral: true });
+
+  const name = i.user.username;
+
+  // GM
+  if (i.customId === "join_gm") {
+    game.gm = name;
+    return i.editReply("GMとして登録しました");
+  }
+
+  // プレイヤー
+  if (i.customId === "join_player") {
+    if (!game.players.includes(name)) {
+      game.players.push(name);
+      game.alive.push(name);
+    }
+    return i.editReply("プレイヤーとして参加しました");
+  }
+
+  // 観戦者
+  if (i.customId === "join_spectator") {
+    if (!game.spectators.includes(name)) {
+      game.spectators.push(name);
+    }
+    return i.editReply("観戦者として参加しました");
   }
 }
