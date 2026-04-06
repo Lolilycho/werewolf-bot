@@ -137,3 +137,73 @@ if (msg.content === "!start") {
     components: [gmButtons()]
   });
 }
+
+import { addLog } from "../utils/log.js";
+import { checkRunoff } from "./runoff.js";
+
+function endVote(channel) {
+
+  // ログ保存
+  addLog(game.day, "vote", [...game.votes]);
+
+  const runoff = checkRunoff();
+
+  if (runoff) {
+    return channel.send({
+      content: `決選投票：${runoff.join(",")}`,
+      components: [createSelect("runoff", runoff)]
+    });
+  }
+
+  // 処刑
+  let max = 0;
+  let target = null;
+
+  for (const [k,v] of Object.entries(game.voteCount)) {
+    if (v > max) {
+      max = v;
+      target = k;
+    }
+  }
+
+  if (target) {
+    game.alive = game.alive.filter(p => p !== target);
+    channel.send(`${target} が処刑されました`);
+  }
+
+  game.day++;
+}
+
+import { resolveNight } from "./night.js";
+import { addLog } from "../utils/log.js";
+
+if (i.customId === "end_night") {
+
+  const dead = resolveNight();
+
+  // ログ保存
+  addLog(game.day, "night", { ...game.nightActions });
+
+  if (dead) {
+    await i.channel.send(`${dead} が死亡しました`);
+  } else {
+    await i.channel.send("誰も死亡しませんでした");
+  }
+
+  return;
+}
+
+import { formatLog } from "../utils/log.js";
+import { checkWin } from "./result.js";
+
+if (i.customId === "end_game") {
+
+  const win = checkWin();
+
+  await i.channel.send(`🏆 ${win}`);
+
+  const log = formatLog();
+
+  await i.channel.send("===試合ログ===");
+  await i.channel.send("```" + log + "```");
+}
