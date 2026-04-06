@@ -16,10 +16,13 @@ export async function onMessage(msg) {
     game.players = [];
     game.alive = [];
     game.roles = {};
+    game.votes = [];
+    game.voteCount = {};
     game.logs = [];
     game.day = 1;
 
-    const channels = await createGameChannels(msg.guild, game.players);
+    // チャンネル生成
+    const channels = await createGameChannels(msg.guild);
     game.channels = channels;
 
     return msg.channel.send({
@@ -39,51 +42,49 @@ export async function onInteraction(i) {
 
   if (i.isButton()) {
 
-  if (i.customId === "start_day") {
-
     await i.deferReply();
 
-    resetVotes();
+    if (i.customId === "start_day") {
 
-    await i.editReply({
-      content: `${game.day}日目 投票開始`,
-      components: [createSelect("vote", game.alive)]
-    });
-  }
+      resetVotes();
 
-  if (i.customId === "start_day") {
+      return i.editReply({
+        content: `${game.day}日目 投票開始`,
+        components: [createSelect("vote", game.alive)]
+      });
+    }
 
-    await i.deferReply();
+    if (i.customId === "start_night") {
 
-    resetVotes();
+      initNight();
 
-    await i.editReply({
-      content: `${game.day}日目 投票開始`,
-      components: [createSelect("vote", game.alive)]
-    });
-  }
+      return i.editReply("夜開始");
+    }
 
     if (i.customId === "end_night") {
 
       const dead = resolveNight();
 
-      // ログ保存
       addLog(game.day, "night", { ...game.nightActions });
 
       if (dead) {
-        return i.channel.send(`${dead} が死亡しました`);
+        return i.editReply(`${dead} が死亡しました`);
       } else {
-        return i.channel.send("誰も死亡しませんでした");
+        return i.editReply("誰も死亡しませんでした");
       }
     }
 
-  if (i.customId === "start_night") {
+    if (i.customId === "end_game") {
 
-    await i.deferReply();
+      const win = checkWin();
 
-    initNight();
+      await i.editReply(`🏆 ${win}`);
 
-    await i.editReply("夜開始");
+      const log = formatLog();
+
+      await i.followUp("===試合ログ===");
+      await i.followUp("```" + log + "```");
+    }
   }
 
   if (i.isStringSelectMenu()) {
@@ -98,9 +99,6 @@ export async function onInteraction(i) {
 
       const msg = await i.reply({ content: "投票完了", fetchReply: true });
       setTimeout(() => msg.delete().catch(()=>{}), 5000);
-
-      // ログ保存（途中経過ではなく最後にまとめてもOK）
-      addLog(game.day, "vote", [...game.votes]);
 
       const runoff = checkRunoff();
 
@@ -132,21 +130,4 @@ export async function onInteraction(i) {
       return i.reply(`${value} を襲撃`);
     }
   }
-}
-
-if (msg.content === "!start") {
-
-  game.players = [];
-  game.alive = [];
-  game.roles = {};
-  game.logs = [];
-
-  const channels = await createGameChannels(msg.guild, []);
-
-  game.channels = channels;
-
-  return msg.channel.send({
-    content: "GM操作",
-    components: [gmButtons()]
-  });
 }
